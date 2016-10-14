@@ -449,7 +449,7 @@ export default formId => reduxForm(
 
             if (!linkProps) throw new Error('Unknown type: ' + type)
 
-            const formCategories = Set(category ? category.replace(/#/g,"").split(/ +/) : [])
+            const formCategories = Set(category ? category.replace(/#/g, '').split(/ +/) : [])
             const rootCategory = originalPost && originalPost.category ?
                 originalPost.category : formCategories.first()
             const rootTag = /^[-a-z\d]+$/.test(rootCategory) ? rootCategory : null
@@ -496,6 +496,7 @@ export default formId => reduxForm(
             // loadingCallback starts the loading indicator
             loadingCallback()
 
+            let confirm
             const __config = {originalPost, autoVote}
 
             switch(payoutType) {
@@ -503,6 +504,8 @@ export default formId => reduxForm(
                     __config.comment_options = {
                         max_accepted_payout: '0.000 SBD',
                     }
+                    confirm = 'You will NOT receive any payouts for this post becasue \'Decline Payout\' was selected.'
+                    __config.title = parent_author === '' ? 'Confirm Post' : 'Confirm Comment'
                     break;
                 case '100%': // 100% steem power payout
                     __config.comment_options = {
@@ -520,6 +523,7 @@ export default formId => reduxForm(
             }
             dispatch(transaction.actions.broadcastOperation({
                 type: 'comment',
+                confirm,
                 operation,
                 errorCallback,
                 successCallback,
